@@ -9,18 +9,37 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.google.common.base.Strings;
+
 public class ExampleForChrome {
 	public static void main(String[] args) throws IOException {
 		String env = "org";
-		if(args != null && args.length>0 && args[0].trim().equals("com")){
+		
+		if(args == null){
+			return ;
+		}
+		if(args != null && args.length>0 && (args[0].trim().equals("com") || args[0].trim().equals("net"))){
 			env = args[0].trim();
 		}
+		String empNo = "103485";
+		String pwd =  "dy#qy7ttko";
+		int port = 18381;
+		if(args.length >=2){
+			port = Integer.valueOf(args[1].trim());
+		}
+		if(args.length >=4){
+			 empNo = Strings.isNullOrEmpty(args[2].trim()) ? "103485":args[2].trim();
+			 pwd =  Strings.isNullOrEmpty(args[3].trim()) ? "dy#qy7ttko":args[3].trim();
+		}
+		
 		
 		SimpleDateFormat dateFormater=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		long start = System.currentTimeMillis();
@@ -28,31 +47,38 @@ public class ExampleForChrome {
 		// 设置 chrome 的路径
 		System.setProperty(
 				"webdriver.chrome.driver",
-				"/Applications/Google Chrome.app");
+				"/Users/zhxy/Documents/workspaceOth/seleniumLogIn/chrome/chromedriver");
+		WebDriver driver =new ChromeDriver();
 		// 创建一个 ChromeDriver 的接口，用于连接 Chrome
-		@SuppressWarnings("deprecation")
-		ChromeDriverService service = new ChromeDriverService.Builder()
-				.usingChromeDriverExecutable(
-						new File(
-								"/Users/zhxy/Downloads/chromeDownload/chromedriver"))
-				.usingAnyFreePort().build();
-		service.start();
+//		@SuppressWarnings("deprecation")
+//		ChromeDriverService service = new ChromeDriverService.Builder().usingDriverExecutable(new File("/Users/zhxy/Documents/workspaceOth/seleniumLogIn/chrome/chromedriver")).usingPort(port).build();
+//				.usingChromeDriverExecutable(new File("chrome/chromedriver"))
+		
+//				.usingAnyFreePort().build();
+//		service.start();
 		// 创建一个 Chrome 的浏览器实例
-		WebDriver driver = new RemoteWebDriver(service.getUrl(),
-				DesiredCapabilities.chrome());
-		
+//		WebDriver driver = new RemoteWebDriver(service.getUrl(),
+//				DesiredCapabilities.chrome());
 		driver.get(String.format("https://login.dooioo.%s/login", env));
-		System.out.println("1 Page title is: " + driver.getTitle());
+		System.out.println("1 Page title is: " + driver.getTitle()+String.format("https://login.dooioo.%s/login", env));
 		WebElement usercode = driver.findElement(By.id("usercode"));
-		usercode.sendKeys("103485");
+		usercode.sendKeys(empNo);
 		WebElement password = driver.findElement(By.id("password"));
-		password.sendKeys("dy#qy7ttko");
-		
-		WebElement companyId = driver.findElement(By.xpath("//*[@id='selectCompanyContainer']/label[1]/input"));
+		password.sendKeys(pwd);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			System.out.println(e1.getMessage());
+		}
+		WebElement companyId = driver.findElement(By.xpath("//*[@id=\"selectCompanyContainer\"]/label[1]/input"));
 		companyId.click();
 		
 		WebElement submit = driver.findElement(By.xpath("//*[@id='fm1']/input[1]"));
-		submit.click();
+//		submit.click();  error: org.openqa.selenium.WebDriverException: Element is not clickable at point (411, 675). Other element would receive the click: .
+		//http://stackoverflow.com/questions/11908249/debugging-element-is-not-clickable-at-point-error
+		Actions actions = new Actions(driver);
+		actions.moveToElement(submit).click().perform();
+		
 		
 //		driver.switchTo().window("");
 		
@@ -61,7 +87,25 @@ public class ExampleForChrome {
 
 		driver.get(String.format("http://blog.dooioo.%s",env));
 		System.out.println("3 Page title is: " + driver.getTitle());
-		WebElement daka = driver.findElement(By.id("__daka"));
+		try {
+			Thread.sleep(1000);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		try {
+			WebElement pop = driver.findElement(By.xpath("//*[@id=\"attendance_prompt\"]/div[2]/div[1]/div/a"));
+			pop.click();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} 
+		
+		WebElement daka = null;
+		try {
+			daka = driver.findElement(By.id("__daka"));
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}   
 		daka.click();
 		
 		System.out.println(dateFormater.format(new Date())+"---- daka time cost:"+(System.currentTimeMillis() -start));
