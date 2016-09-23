@@ -47,7 +47,7 @@ public class ExampleForChrome {
 		// 设置 chrome 的路径
 		System.setProperty(
 				"webdriver.chrome.driver",
-				"/Users/zhxy/Documents/workspaceOth/seleniumLogIn/chrome/chromedriver");
+				"./chrome/chromedriver");
 		WebDriver driver =new ChromeDriver();
 		// 创建一个 ChromeDriver 的接口，用于连接 Chrome
 //		@SuppressWarnings("deprecation")
