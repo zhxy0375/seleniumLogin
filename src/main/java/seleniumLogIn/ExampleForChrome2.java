@@ -62,7 +62,7 @@ public class ExampleForChrome2 {
 				"webdriver.chrome.driver",
 				"./chrome/chromedriver");
 		WebDriver driver =new ChromeDriver();
-		int loopCount = 1;
+		int loopCount = 5;
 		int n = 1;
 		while( !logInPageFlow(env, empNo, pwd, driver) ){
 			if(n>=loopCount){
@@ -71,7 +71,7 @@ public class ExampleForChrome2 {
 			}
 			n++;
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
@@ -143,7 +143,6 @@ public class ExampleForChrome2 {
 		System.out.println(dateFormater.format(new Date())+"---- total time cost:"+(end -start));
 		// 关闭浏览器
 //		driver.quit();
-				
 		// 关闭 ChromeDriver 接口
 //		service.stop();
 		System.exit(0);
@@ -170,7 +169,7 @@ public class ExampleForChrome2 {
 		
 		String picPath = "/Users/zhxy/codeNew."+prefix;
 		try {
-			screenShotForElement(driver, captchaImage, picPath,false);
+			screenShotForElement(driver, captchaImage, picPath,true);
 		} catch (InterruptedException e2) {
 			System.out.println(e2.getMessage());
 			return false;
@@ -182,10 +181,11 @@ public class ExampleForChrome2 {
 			File codeFile = new File(picPath);
 			String result = instance.doOCR(codeFile);
 			String fileName = codeFile.toString().substring(codeFile.toString().lastIndexOf("\\")+1);
-			System.out.println("code 图片名：" + fileName +" 识别结果："+result);
+			String resultFinal = result.replace(" ", "");
+			System.out.println("code 图片名：" + fileName +" 识别结果："+result+" ,resultFinal:"+resultFinal);
 			
 			WebElement captcha = driver.findElement(By.id("captcha"));
-			captcha.sendKeys(result);
+			captcha.sendKeys(resultFinal);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			return false;
@@ -248,7 +248,9 @@ public class ExampleForChrome2 {
             int height = element.getSize().getHeight();
             System.out.println(String.format("x:%s,y:%s,w:%s,h:%s;", p.getX(), p.getY(),width, height));
             Rectangle rect = new Rectangle(width, height);
-            BufferedImage img = ImageIO.read(file);
+            
+            // 这里不能用 copy出来的 file，应该用scrFile
+            BufferedImage img = ImageIO.read(scrFile);
             BufferedImage dest = img.getSubimage(p.getX(), p.getY(),
                     rect.width, rect.height);
             
@@ -256,15 +258,43 @@ public class ExampleForChrome2 {
             ImageIO.write(dest, "png", destFile);
         	Thread.sleep(1000);
             if(isYouHua){
-				cleanImage(scrFile, path);
-            }else{
-//                FileUtils.copyFile(destFile, new File(path));
+				cleanImage(destFile, path);
             }
+//            else{
+//                FileUtils.copyFile(destFile, new File(path));
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     
+    /**
+     * This method for screen shot element
+     * 
+     * @param driver
+     * @param element
+     * @param path
+     * @throws InterruptedException
+     */
+    public static void screenShotForElement(WebDriver driver,
+            WebElement element, String path) throws InterruptedException {
+        File scrFile = ((TakesScreenshot) driver)
+                .getScreenshotAs(OutputType.FILE);
+        try {
+            Point p = element.getLocation();
+            int width = element.getSize().getWidth();
+            int height = element.getSize().getHeight();
+            Rectangle rect = new Rectangle(width, height);
+            BufferedImage img = ImageIO.read(scrFile);
+            BufferedImage dest = img.getSubimage(p.getX(), p.getY(),
+                    rect.width, rect.height);
+            ImageIO.write(dest, "png", scrFile);
+            Thread.sleep(1000);
+            FileUtils.copyFile(scrFile, new File(path));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 	
 	/**
 	 * 
