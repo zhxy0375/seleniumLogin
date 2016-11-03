@@ -181,7 +181,8 @@ public class recognizePic {
                 binaryBufferedImage.setRGB(x, y, gray[x][y]);  
             }  
         }  
-  
+  /* zhxy:先不打印
+        
         // 矩阵打印  
         for (int y = 0; y < h; y++)  
         {  
@@ -197,7 +198,7 @@ public class recognizePic {
             }  
             System.out.println();  
         }  
-  
+  */
         ImageIO.write(binaryBufferedImage, type, new File(destDir, sfile  
                 .getName()));  
     }  
