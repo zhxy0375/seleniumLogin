@@ -120,25 +120,30 @@ public class ExampleForChrome2 {
 		driver.switchTo().window(driver.getWindowHandle());
 		System.out.println("4 Page title is: " + driver.getTitle());
 		
-		// 通过判断 title 内容等待搜索页面加载完毕，间隔10秒
-		/*
-		 * WebDriverWait类的构造方法接受了一个WebDriver对象和一个等待最长时间（10秒）。然后调用until方法，其中重写了ExpectedCondition接口中的apply方法，
-		 * 让其返回一个WebElement,即加载完成的元素，然后点击。默认情况下，WebDriverWait每500毫秒调用一次ExpectedCondition，直到有成功的返回，当然如果超过设定的值还没有成功的返回，将抛出异常
-		 */
-		String dakaText = (new WebDriverWait(driver, 10)).until(
-//				new ExpectedCondition<Boolean>() {
-//			public Boolean apply(WebDriver d) {
-//				return d.getTitle().toLowerCase().endsWith("ztree");
+		try {
+			// 通过判断 title 内容等待搜索页面加载完毕，间隔10秒
+			/*
+			 * WebDriverWait类的构造方法接受了一个WebDriver对象和一个等待最长时间（10秒）。然后调用until方法，其中重写了ExpectedCondition接口中的apply方法，
+			 * 让其返回一个WebElement,即加载完成的元素，然后点击。默认情况下，WebDriverWait每500毫秒调用一次ExpectedCondition，直到有成功的返回，当然如果超过设定的值还没有成功的返回，将抛出异常
+			 */
+			String dakaText = (new WebDriverWait(driver, 10)).until(
+//					new ExpectedCondition<Boolean>() {
+//				public Boolean apply(WebDriver d) {
+//					return d.getTitle().toLowerCase().endsWith("ztree");
+//				}
 //			}
-//		}
-			new ExpectedCondition<WebElement>(){
-				public WebElement apply(WebDriver d) {
-	                return d.findElement(By.className("today"));  
-	            }
-		}).getText();
-//		WebElement today = driver.findElement(By.className("today"));
-//		String dakaText = today.getText();
-		System.out.println(dakaText);
+				new ExpectedCondition<WebElement>(){
+					public WebElement apply(WebDriver d) {
+		                return d.findElement(By.className("today"));  
+		            }
+			}).getText();
+//			WebElement today = driver.findElement(By.className("today"));
+//			String dakaText = today.getText();
+			System.out.println(dakaText);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
 		long end = System.currentTimeMillis();
 		System.out.println(dateFormater.format(new Date())+"---- total time cost:"+(end -start));
 		// 关闭浏览器
