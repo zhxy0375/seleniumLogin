@@ -62,12 +62,14 @@ public class ExampleForChrome2 {
 				"webdriver.chrome.driver",
 				"./chrome/chromedriver");
 		WebDriver driver =new ChromeDriver();
-		int loopCount = 10;
+		int loopCount = 1;
 		int n = 1;
 		while( !logInPageFlow(env, empNo, pwd, driver) ){
 			if(n>=loopCount){
-				break;
+//				break;
+				return;
 			}
+			n++;
 			try {
 				Thread.sleep(1000);
 			} catch (Exception e) {
@@ -152,7 +154,7 @@ public class ExampleForChrome2 {
 		System.out.println("1 Page title is: " + driver.getTitle()+String.format("https://login.dooioo.%s/login", env));
 		
 		try {
-			Thread.sleep(500);
+			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
 			System.out.println(e1.getMessage());
 		}
@@ -164,11 +166,11 @@ public class ExampleForChrome2 {
 		
 		WebElement captchaImage = driver.findElement(By.id("captchaImage"));
 		
-		String prefix = "jpeg";
+		String prefix = "png";
 		
 		String picPath = "/Users/zhxy/codeNew."+prefix;
 		try {
-			screenShotForElement(driver, captchaImage, picPath,true);
+			screenShotForElement(driver, captchaImage, picPath,false);
 		} catch (InterruptedException e2) {
 			System.out.println(e2.getMessage());
 			return false;
@@ -234,21 +236,29 @@ public class ExampleForChrome2 {
             WebElement element, String path,boolean isYouHua) throws InterruptedException {
         File scrFile = ((TakesScreenshot) driver)
                 .getScreenshotAs(OutputType.FILE);
+        String screenShotPath = path.substring(0,path.indexOf("."))+"_"+path.substring(path.indexOf("."));
+        System.out.println(path+","+isYouHua+","+screenShotPath);
+        File file = new File(screenShotPath);  
+        
         try {
+        	FileUtils.copyFile(scrFile, file);
+        	
             Point p = element.getLocation();
             int width = element.getSize().getWidth();
             int height = element.getSize().getHeight();
             System.out.println(String.format("x:%s,y:%s,w:%s,h:%s;", p.getX(), p.getY(),width, height));
             Rectangle rect = new Rectangle(width, height);
-            BufferedImage img = ImageIO.read(scrFile);
+            BufferedImage img = ImageIO.read(file);
             BufferedImage dest = img.getSubimage(p.getX(), p.getY(),
                     rect.width, rect.height);
-            ImageIO.write(dest, "jpeg", scrFile);
+            
+            File destFile = new File(path);
+            ImageIO.write(dest, "png", destFile);
         	Thread.sleep(1000);
             if(isYouHua){
 				cleanImage(scrFile, path);
             }else{
-                FileUtils.copyFile(scrFile, new File(path));
+//                FileUtils.copyFile(destFile, new File(path));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -344,7 +354,7 @@ public class ExampleForChrome2 {
 	            binaryBufferedImage.setRGB(x, y, gray[x][y]);  
 	        }  
 	    }  
-	
+	/*
 	    // 矩阵打印  
 	    for (int y = 0; y < h; y++)  
 	    {  
@@ -360,8 +370,8 @@ public class ExampleForChrome2 {
 	        }  
 	        System.out.println();  
 	    }  
-	
-	    ImageIO.write(binaryBufferedImage, "jpeg", new File(path));  
+	*/
+	    ImageIO.write(binaryBufferedImage, "png", new File(path));  
 	}  
 	
 	public static boolean isBlack(int colorInt)  
